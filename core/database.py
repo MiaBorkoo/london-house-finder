@@ -56,6 +56,8 @@ class Database:
                     lon REAL DEFAULT 0,
                     tenure TEXT DEFAULT '',
                     floorplan_urls TEXT DEFAULT '[]',
+                    num_images INTEGER DEFAULT 0,
+                    num_floorplans INTEGER DEFAULT 0,
                     has_garden INTEGER DEFAULT 0,
                     has_balcony INTEGER DEFAULT 0,
                     has_parking INTEGER DEFAULT 0,
@@ -162,6 +164,7 @@ class Database:
                     property_type, area, address, postcode, url, image_url,
                     description, features, sqm, sqm_source, epc_rating,
                     lat, lon, tenure, floorplan_urls,
+                    num_images, num_floorplans,
                     has_garden, has_balcony, has_parking, is_chain_free,
                     agent_name, agent_phone, nearest_station, walk_minutes
                 ) VALUES (
@@ -169,6 +172,7 @@ class Database:
                     ?, ?, ?, ?, ?, ?,
                     ?, ?, ?, ?, ?,
                     ?, ?, ?, ?,
+                    ?, ?,
                     ?, ?, ?, ?,
                     ?, ?, ?, ?
                 )
@@ -194,6 +198,8 @@ class Database:
                 prop.get("lon", 0),
                 prop.get("tenure", ""),
                 floorplan_urls,
+                prop.get("num_images", 0),
+                prop.get("num_floorplans", 0),
                 int(prop.get("has_garden", False)),
                 int(prop.get("has_balcony", False)),
                 int(prop.get("has_parking", False)),

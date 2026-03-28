@@ -25,6 +25,8 @@ class PropertyFilter:
         self.epc_min = search.get("epc_min", "")
         self.must_have = [f.lower() for f in search.get("must_have", [])]
         self.exclude_keywords = [k.lower() for k in search.get("exclude_keywords", [])]
+        self.min_images = search.get("min_images", 0)
+        self.require_floorplan = search.get("require_floorplan", False)
 
         # Area postcodes from areas config
         self.allowed_postcodes = set()
@@ -46,6 +48,7 @@ class PropertyFilter:
             self._check_area,
             self._check_sqm,
             self._check_epc,
+            self._check_images,
             self._check_exclusions,
             self._check_must_have,
         ]
@@ -117,6 +120,18 @@ class PropertyFilter:
             return True, ""  # Benefit of the doubt if unknown
         if prop.sqm < self.sqm_min:
             return False, f"{prop.sqm:.0f}m\u00b2 < min {self.sqm_min}m\u00b2"
+        return True, ""
+
+    def _check_images(self, prop: Property) -> tuple[bool, str]:
+        # Check minimum number of photos
+        if self.min_images and prop.num_images > 0 and prop.num_images < self.min_images:
+            return False, f"{prop.num_images} images < min {self.min_images}"
+        # Check floor plan requirement
+        if self.require_floorplan:
+            has_fp = prop.num_floorplans > 0 or len(prop.floorplan_urls) > 0
+            if prop.num_floorplans == 0 and prop.num_images > 0 and not prop.floorplan_urls:
+                # We know there are images but no floorplan
+                return False, "No floor plan"
         return True, ""
 
     def _check_epc(self, prop: Property) -> tuple[bool, str]:

@@ -19,6 +19,8 @@ search:
   bedrooms_max: 3
   sqm_min: 78
   epc_min: "C"
+  min_images: 4          # At least 4 photos
+  require_floorplan: true  # Must have a floor plan
   must_have:
     - balcony
     - garden
@@ -43,45 +45,33 @@ hot_listing:
 # Areas to Search
 # -----------------------------------------------------------------------------
 areas:
-  - name: "Hampstead"
+  - name: "Hampstead / Belsize Park"
     postcode: "NW3"
-    rightmove_id: "REGION^1187"
+    rightmove_id: "OUTCODE^1859"
     zoopla_query: "hampstead"
-    onthemarket_outcode: "NW3"
-
-  - name: "Belsize Park"
-    postcode: "NW3"
-    rightmove_id: "REGION^1187"
-    zoopla_query: "belsize-park"
     onthemarket_outcode: "NW3"
 
   - name: "Highgate"
     postcode: "N6"
-    rightmove_id: "REGION^822"
+    rightmove_id: "OUTCODE^1684"
     zoopla_query: "highgate"
     onthemarket_outcode: "N6"
 
-  - name: "Kentish Town"
+  - name: "Kentish Town / Gospel Oak"
     postcode: "NW5"
-    rightmove_id: "REGION^1189"
+    rightmove_id: "OUTCODE^1861"
     zoopla_query: "kentish-town"
-    onthemarket_outcode: "NW5"
-
-  - name: "Gospel Oak"
-    postcode: "NW5"
-    rightmove_id: "REGION^1189"
-    zoopla_query: "gospel-oak"
     onthemarket_outcode: "NW5"
 
   - name: "Chalk Farm"
     postcode: "NW1"
-    rightmove_id: "REGION^1185"
+    rightmove_id: "OUTCODE^1855"
     zoopla_query: "chalk-farm"
     onthemarket_outcode: "NW1"
 
   - name: "Golders Green"
     postcode: "NW11"
-    rightmove_id: "REGION^1195"
+    rightmove_id: "OUTCODE^1857"
     zoopla_query: "golders-green"
     onthemarket_outcode: "NW11"
 
@@ -134,7 +124,7 @@ stations:
 # -----------------------------------------------------------------------------
 scrapers:
   rightmove:
-    enabled: false  # Disabled - location IDs broken, needs investigation
+    enabled: true
     rate_limit_seconds: 3
 
   zoopla:

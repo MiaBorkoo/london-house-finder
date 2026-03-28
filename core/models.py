@@ -31,6 +31,8 @@ class Property:
     lon: float = 0.0
     tenure: str = ""  # freehold, leasehold, share of freehold
     floorplan_urls: list = field(default_factory=list)
+    num_images: int = 0
+    num_floorplans: int = 0
     has_garden: bool = False
     has_balcony: bool = False
     has_parking: bool = False

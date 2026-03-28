@@ -92,33 +92,42 @@ class RightmoveScraper(BaseScraper):
         properties = []
         soup = BeautifulSoup(html, "lxml")
 
-        # Primary: try to find window.jsonModel in script tags
-        found_json_model = False
+        # Primary: __NEXT_DATA__ (current Rightmove)
+        next_data = soup.find("script", id="__NEXT_DATA__")
+        if next_data and next_data.string:
+            try:
+                data = json.loads(next_data.string)
+                sr = data.get("props", {}).get("pageProps", {}).get("searchResults", {})
+                listings = sr.get("properties", [])
+                self.logger.info(f"__NEXT_DATA__ found with {len(listings)} properties")
+                for item in listings:
+                    prop = self._parse_json_property(item)
+                    if prop:
+                        properties.append(prop)
+                if properties:
+                    return properties
+            except (json.JSONDecodeError, KeyError) as e:
+                self.logger.warning(f"Error parsing __NEXT_DATA__: {e}")
+
+        # Fallback: window.jsonModel (legacy)
         for script in soup.find_all("script"):
             text = script.string or ""
             if "window.jsonModel" in text:
-                found_json_model = True
                 try:
                     match = re.search(r"window\.jsonModel\s*=\s*(\{.*\})", text, re.DOTALL)
                     if match:
                         data = json.loads(match.group(1))
                         listings = data.get("properties", [])
-                        self.logger.info(f"jsonModel found with {len(listings)} properties")
                         for item in listings:
                             prop = self._parse_json_property(item)
                             if prop:
                                 properties.append(prop)
                         if properties:
                             return properties
-                    else:
-                        self.logger.warning("jsonModel script found but regex didn't match")
                 except (json.JSONDecodeError, KeyError) as e:
                     self.logger.warning(f"Error parsing jsonModel: {e}")
 
-        if not found_json_model:
-            self.logger.info("No window.jsonModel found, trying HTML fallback")
-
-        # Fallback: parse HTML cards
+        # Final fallback: HTML cards
         properties = self._parse_html_listings(soup)
         return properties
 
@@ -178,9 +187,26 @@ class RightmoveScraper(BaseScraper):
                     if fp_url:
                         floorplan_urls.append(fp_url)
 
+            # Floorplan count and image count from metadata
+            num_floorplans = data.get("numberOfFloorplans", 0) or 0
+            num_images = data.get("numberOfImages", 0) or 0
+
+            # displaySize (e.g. "682 sq. ft.")
+            display_size = data.get("displaySize", "") or ""
+
             # Description and feature detection
-            description = data.get("summary", "") or data.get("description", "")
-            features_detected = self._detect_features(description)
+            # keyFeatures can be list of dicts or strings
+            raw_features = data.get("keyFeatures", []) or []
+            key_features = []
+            for kf in raw_features:
+                if isinstance(kf, dict):
+                    key_features.append(kf.get("description", ""))
+                elif isinstance(kf, str):
+                    key_features.append(kf)
+
+            summary = data.get("summary", "") or data.get("description", "")
+            combined_text = f"{summary} {' '.join(key_features)}"
+            features_detected = self._detect_features(combined_text)
 
             # Property type
             property_type = data.get("propertySubType", "") or data.get("propertyType", "")
@@ -190,8 +216,12 @@ class RightmoveScraper(BaseScraper):
             lat = location.get("latitude", 0) or 0
             lon = location.get("longitude", 0) or 0
 
-            # Tenure
-            tenure = data.get("tenure", "") or ""
+            # Tenure (can be dict like {'tenureType': 'LEASEHOLD'} or string)
+            tenure_data = data.get("tenure", "")
+            if isinstance(tenure_data, dict):
+                tenure = tenure_data.get("tenureType", "")
+            else:
+                tenure = str(tenure_data) if tenure_data else ""
 
             # Agent
             agent = data.get("customer", {}) or data.get("agent", {})
@@ -201,11 +231,15 @@ class RightmoveScraper(BaseScraper):
                 agent_name = agent.get("branchDisplayName", "") or agent.get("name", "")
                 agent_phone = agent.get("contactTelephone", "") or agent.get("phone", "")
 
-            # EPC from description
-            epc = self._extract_epc(description)
+            # EPC from description/features
+            epc = self._extract_epc(combined_text)
 
-            # sqm from description
-            sqm, sqm_source = self._extract_sqm_from_text(description)
+            # sqm: prefer displaySize, fallback to description
+            sqm, sqm_source = 0.0, ""
+            if display_size:
+                sqm, sqm_source = self._extract_sqm_from_text(display_size)
+            if not sqm:
+                sqm, sqm_source = self._extract_sqm_from_text(combined_text)
 
             return Property(
                 id=Property.generate_id("rightmove", prop_id),
@@ -220,7 +254,8 @@ class RightmoveScraper(BaseScraper):
                 postcode=postcode,
                 url=url,
                 image_url=image_url,
-                description=description,
+                description=combined_text,
+                features=key_features,
                 sqm=sqm,
                 sqm_source=sqm_source,
                 epc_rating=epc,
@@ -228,6 +263,8 @@ class RightmoveScraper(BaseScraper):
                 lon=float(lon),
                 tenure=tenure.lower() if tenure else "",
                 floorplan_urls=floorplan_urls,
+                num_images=int(num_images),
+                num_floorplans=int(num_floorplans),
                 agent_name=agent_name,
                 agent_phone=agent_phone,
                 **features_detected,

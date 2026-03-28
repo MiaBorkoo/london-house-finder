@@ -27,8 +27,8 @@ def test_yaml_areas():
     loader = ConfigLoader("config/config.yaml")
     config = loader.load()
     areas = config["areas"]
-    assert len(areas) == 7
-    assert areas[0]["name"] == "Hampstead"
+    assert len(areas) == 5
+    assert "Hampstead" in areas[0]["name"]
     assert areas[0]["postcode"] == "NW3"
 
 
