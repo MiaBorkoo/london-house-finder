@@ -137,7 +137,10 @@ class PropertyAggregator:
                             hot_listings.append(prop)
                     else:
                         filtered_count += 1
-                        self.logger.debug(f"Filtered: {prop.title[:50]}... ({reason})")
+                        if filtered_count <= 5:  # Log first 5 rejections at INFO
+                            self.logger.info(f"Filtered: {prop.title[:50]}... ({reason})")
+                        else:
+                            self.logger.debug(f"Filtered: {prop.title[:50]}... ({reason})")
 
             except Exception as e:
                 self.logger.error(f"Error processing {prop.id}: {e}")

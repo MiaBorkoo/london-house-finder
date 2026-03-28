@@ -132,9 +132,17 @@ def test_must_have_garden_description():
 
 def test_must_have_fails():
     f = PropertyFilter(_make_config())
-    passed, reason = f.passes(_make_prop(has_garden=False))
+    # With description present but no garden/balcony mentioned, should fail
+    passed, reason = f.passes(_make_prop(has_garden=False, description="a nice flat with parking"))
     assert not passed
     assert "must-have" in reason
+
+
+def test_must_have_benefit_of_doubt():
+    f = PropertyFilter(_make_config())
+    # No description and no flags = benefit of the doubt
+    passed, _ = f.passes(_make_prop(has_garden=False))
+    assert passed
 
 
 def test_hot_listing_price():

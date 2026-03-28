@@ -141,14 +141,14 @@ class PropertyFilter:
         return True, ""
 
     def _check_must_have(self, prop: Property) -> tuple[bool, str]:
-        """Check must-have features. Uses OR logic: at least one must be present."""
+        """Check must-have features. Uses OR logic: at least one must be present.
+
+        If we have no description and no feature flags, give benefit of the doubt.
+        """
         if not self.must_have:
             return True, ""
 
-        features_text = " ".join(f.lower() for f in (prop.features or []))
-        combined = f"{features_text} {prop.description or ''}".lower()
-
-        # Check boolean flags too
+        # Check boolean flags
         feature_map = {
             "garden": prop.has_garden,
             "balcony": prop.has_balcony,
@@ -157,10 +157,18 @@ class PropertyFilter:
         }
 
         for feature in self.must_have:
-            # Check boolean flags
             if feature_map.get(feature, False):
                 return True, ""
-            # Check text
+
+        # Check text in description + features
+        features_text = " ".join(f.lower() for f in (prop.features or []))
+        combined = f"{features_text} {prop.description or ''}".lower()
+
+        # If no text to check, benefit of the doubt
+        if not combined.strip():
+            return True, ""
+
+        for feature in self.must_have:
             if feature in combined:
                 return True, ""
 

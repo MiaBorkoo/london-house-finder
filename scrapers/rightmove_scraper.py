@@ -93,24 +93,30 @@ class RightmoveScraper(BaseScraper):
         soup = BeautifulSoup(html, "lxml")
 
         # Primary: try to find window.jsonModel in script tags
+        found_json_model = False
         for script in soup.find_all("script"):
             text = script.string or ""
             if "window.jsonModel" in text:
+                found_json_model = True
                 try:
-                    # Extract JSON from: window.jsonModel = {...}
                     match = re.search(r"window\.jsonModel\s*=\s*(\{.*\})", text, re.DOTALL)
                     if match:
                         data = json.loads(match.group(1))
                         listings = data.get("properties", [])
+                        self.logger.info(f"jsonModel found with {len(listings)} properties")
                         for item in listings:
                             prop = self._parse_json_property(item)
                             if prop:
                                 properties.append(prop)
                         if properties:
-                            self.logger.debug(f"Extracted {len(properties)} from jsonModel")
                             return properties
+                    else:
+                        self.logger.warning("jsonModel script found but regex didn't match")
                 except (json.JSONDecodeError, KeyError) as e:
-                    self.logger.debug(f"Error parsing jsonModel: {e}")
+                    self.logger.warning(f"Error parsing jsonModel: {e}")
+
+        if not found_json_model:
+            self.logger.info("No window.jsonModel found, trying HTML fallback")
 
         # Fallback: parse HTML cards
         properties = self._parse_html_listings(soup)

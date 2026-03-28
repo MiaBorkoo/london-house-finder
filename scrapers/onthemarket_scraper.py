@@ -82,12 +82,12 @@ class OnTheMarketScraper(BaseScraper):
             "property-type=flat",
             "retirement=false",
             "shared-ownership=false",
-            "sort-field=price",
         ]
         if page > 1:
             params.append(f"page={page}")
 
-        return f"{self.BASE_URL}/for-sale/flats/{outcode.lower()}/?{'&'.join(params)}"
+        # OnTheMarket uses /for-sale/property/{outcode}/ format
+        return f"{self.BASE_URL}/for-sale/property/{outcode.lower()}/?{'&'.join(params)}"
 
     def _extract_listings(self, html: str) -> list[Property]:
         """Extract listings from OnTheMarket HTML page."""
