@@ -6,7 +6,7 @@ Property search automation for London flat purchases. Scrapes Rightmove, Zoopla,
 
 - **3 scrapers**: Rightmove, Zoopla, OnTheMarket
 - **Phone-editable config** via Google Sheets (with YAML fallback)
-- **Floor plan analysis** for square meters (Claude Vision + OCR)
+- **Floor plan analysis** for square meters (Gemini Vision + OCR)
 - **Walking distance** to tube/rail stations
 - **Daily digest** + instant alerts for hot listings
 - **Runs automatically** via GitHub Actions
@@ -24,7 +24,7 @@ Property search automation for London flat purchases. Scrapes Rightmove, Zoopla,
 |--------|----------|-------------|
 | `NTFY_TOPIC` | Yes | Your ntfy.sh topic name |
 | `CONFIG_SHEET_ID` | No | Google Sheet ID for phone-editable config |
-| `ANTHROPIC_API_KEY` | No | For floor plan sqm extraction via Claude Vision |
+| `GEMINI_API_KEY` | No | For floor plan sqm extraction via Gemini Vision |
 
 ## Local Development
 
@@ -91,4 +91,4 @@ pytest tests/ -v
 
 - **GitHub Actions**: Free (within 2000 min/month)
 - **ntfy.sh**: Free
-- **Claude Vision**: ~£0.01 per floor plan (~£3/month)
+- **Gemini Vision**: Free tier generous (~1500 requests/day)

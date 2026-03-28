@@ -169,7 +169,7 @@ ntfy:
 # -----------------------------------------------------------------------------
 enrichment:
   floorplan_analysis: true
-  claude_model: "claude-sonnet-4-20250514"
+  gemini_model: "gemini-2.0-flash"
   max_api_calls_per_run: 20
 
 # -----------------------------------------------------------------------------
