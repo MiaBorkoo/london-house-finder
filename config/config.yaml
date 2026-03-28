@@ -134,7 +134,7 @@ stations:
 # -----------------------------------------------------------------------------
 scrapers:
   rightmove:
-    enabled: true
+    enabled: false  # Disabled - location IDs broken, needs investigation
     rate_limit_seconds: 3
 
   zoopla:
