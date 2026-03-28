@@ -113,6 +113,17 @@ class Database:
                 ON properties(url) WHERE url != ''
             """)
 
+            # Migrate: add columns if missing (for databases created before these fields existed)
+            existing = {row[1] for row in cursor.execute("PRAGMA table_info(properties)").fetchall()}
+            migrations = {
+                "num_images": "INTEGER DEFAULT 0",
+                "num_floorplans": "INTEGER DEFAULT 0",
+            }
+            for col, col_type in migrations.items():
+                if col not in existing:
+                    cursor.execute(f"ALTER TABLE properties ADD COLUMN {col} {col_type}")
+                    logger.info(f"Migrated: added column {col}")
+
             conn.commit()
             logger.info(f"Database initialized at {self.db_path}")
 
