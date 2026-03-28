@@ -1,0 +1,198 @@
+# =============================================================================
+# London House Finder Configuration
+# =============================================================================
+# Fallback config when Google Sheets is unavailable.
+# Primary config should be managed via Google Sheets for phone editing.
+# =============================================================================
+
+user:
+  name: "Lu"
+
+# -----------------------------------------------------------------------------
+# Search Criteria
+# -----------------------------------------------------------------------------
+search:
+  mode: buy
+  price_min: 400000
+  price_max: 650000
+  bedrooms_min: 2
+  bedrooms_max: 3
+  sqm_min: 78
+  epc_min: "C"
+  must_have:
+    - balcony
+    - garden
+  exclude_keywords:
+    - "shared ownership"
+    - "auction"
+    - "retirement"
+    - "studio"
+    - "over 55"
+    - "sheltered"
+
+# Instant alert triggers
+hot_listing:
+  price_below: 550000
+  keywords:
+    - "chain free"
+    - "motivated seller"
+    - "priced to sell"
+    - "must be sold"
+
+# -----------------------------------------------------------------------------
+# Areas to Search
+# -----------------------------------------------------------------------------
+areas:
+  - name: "Hampstead"
+    postcode: "NW3"
+    rightmove_id: "REGION^1187"
+    zoopla_query: "hampstead"
+    onthemarket_outcode: "NW3"
+
+  - name: "Belsize Park"
+    postcode: "NW3"
+    rightmove_id: "REGION^1187"
+    zoopla_query: "belsize-park"
+    onthemarket_outcode: "NW3"
+
+  - name: "Highgate"
+    postcode: "N6"
+    rightmove_id: "REGION^822"
+    zoopla_query: "highgate"
+    onthemarket_outcode: "N6"
+
+  - name: "Kentish Town"
+    postcode: "NW5"
+    rightmove_id: "REGION^1189"
+    zoopla_query: "kentish-town"
+    onthemarket_outcode: "NW5"
+
+  - name: "Gospel Oak"
+    postcode: "NW5"
+    rightmove_id: "REGION^1189"
+    zoopla_query: "gospel-oak"
+    onthemarket_outcode: "NW5"
+
+  - name: "Chalk Farm"
+    postcode: "NW1"
+    rightmove_id: "REGION^1185"
+    zoopla_query: "chalk-farm"
+    onthemarket_outcode: "NW1"
+
+  - name: "Golders Green"
+    postcode: "NW11"
+    rightmove_id: "REGION^1195"
+    zoopla_query: "golders-green"
+    onthemarket_outcode: "NW11"
+
+# -----------------------------------------------------------------------------
+# Target Tube/Rail Stations
+# -----------------------------------------------------------------------------
+stations:
+  - name: "Golders Green"
+    lat: 51.5724
+    lon: -0.1941
+    max_walk_minutes: 20
+
+  - name: "Hampstead"
+    lat: 51.5568
+    lon: -0.1782
+    max_walk_minutes: 20
+
+  - name: "Hampstead Heath"
+    lat: 51.5554
+    lon: -0.1651
+    max_walk_minutes: 20
+
+  - name: "Belsize Park"
+    lat: 51.5504
+    lon: -0.1644
+    max_walk_minutes: 20
+
+  - name: "Highgate"
+    lat: 51.5777
+    lon: -0.1466
+    max_walk_minutes: 20
+
+  - name: "Chalk Farm"
+    lat: 51.5441
+    lon: -0.1538
+    max_walk_minutes: 20
+
+  - name: "Gospel Oak"
+    lat: 51.5553
+    lon: -0.1510
+    max_walk_minutes: 20
+
+  - name: "Kentish Town"
+    lat: 51.5507
+    lon: -0.1402
+    max_walk_minutes: 20
+
+# -----------------------------------------------------------------------------
+# Scraper Settings
+# -----------------------------------------------------------------------------
+scrapers:
+  rightmove:
+    enabled: true
+    rate_limit_seconds: 3
+
+  zoopla:
+    enabled: true
+    rate_limit_seconds: 4
+
+  onthemarket:
+    enabled: true
+    rate_limit_seconds: 3
+
+# -----------------------------------------------------------------------------
+# Schedule
+# -----------------------------------------------------------------------------
+schedule:
+  interval_minutes: 30
+  quiet_hours:
+    enabled: true
+    start: "23:00"
+    end: "07:00"
+
+# -----------------------------------------------------------------------------
+# Notifications
+# -----------------------------------------------------------------------------
+ntfy:
+  enabled: true
+  topic: "london-house-lu"
+  server: "https://ntfy.sh"
+  priority: "high"
+
+# -----------------------------------------------------------------------------
+# Enrichment
+# -----------------------------------------------------------------------------
+enrichment:
+  floorplan_analysis: true
+  claude_model: "claude-sonnet-4-20250514"
+  max_api_calls_per_run: 20
+
+# -----------------------------------------------------------------------------
+# Server
+# -----------------------------------------------------------------------------
+server:
+  enabled: true
+  host: "0.0.0.0"
+  port: 5151
+  debug: false
+
+# -----------------------------------------------------------------------------
+# Database
+# -----------------------------------------------------------------------------
+database:
+  path: "data/properties.db"
+  cleanup_days: 90
+
+# -----------------------------------------------------------------------------
+# Logging
+# -----------------------------------------------------------------------------
+logging:
+  level: "INFO"
+  file: "logs/house_finder.log"
+  max_size_mb: 10
+  backup_count: 3
